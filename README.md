@@ -3,7 +3,7 @@
 Tasks Anthony:
 1. Write and test code for b-spline trajectories (in progress) --- Before 12:00, May 25th
 2. Write and test kalman filter with simulated imu/proximity (add to sim) --- Before 12:00, May 25th
-3. EXTRA - Implement UCS, A* path planning with circular obstacles --- Before 12:00, May 31st
+3. Implement UCS, A*, RRT, RRT* path planning with circular obstacles --- Before 12:00, May 31st
 4. Derive dynamics of 2d drone and compute transfer function --- Before 12:00, May 28th
 5. Design and document tuning of multiloop PID controller --- Before 12:00, May 28th
 6. Design and document tuning of multiloop Lead/Lag controller --- Before 12:00, May 28th
