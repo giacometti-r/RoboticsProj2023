@@ -2,6 +2,7 @@
 
 Tasks Anthony:
 1. Write and test code for b-spline trajectories [75%] --- May 26th
+  - only does cubic B-splines for now
 2. Write and test kalman filter with simulated imu/proximity [10%] --- May 26th
 3. Implement UCS, A*, RRT, RRT* path planning with circular obstacles --- May 31st
 4. Derive dynamics of 2d drone and compute transfer function --- May 28th
