@@ -8,7 +8,9 @@ Tasks Anthony:
 4. Write and test kalman filter with imu/proximity sensor fusion [40%] --- May 28th
 6. Design and document tuning of multiloop PID controller --- May 28th
 8. Implement UCS, A*, RRT, RRT* path planning with circular obstacles --- May 31st
-9. Design and document tuning of multiloop Lead/Lag controller --- May 31st
+9. Design and document tuning of LQR controller --- May 31st
+10. Design and document tuning of multiloop Lead/Lag controller --- May 31st
+11. Design and document tuning of MIMO pole placement controller --- May 31st
 
 Tasks Daniil and Riccardo:
 1. Modify drone code with trajectory planner --- May 26th
