@@ -8,7 +8,7 @@ Tasks Anthony:
 4. Write and test kalman filter with simulated imu/proximity [40%] --- May 28th
 6. Design and document tuning of multiloop PID controller --- May 28th
 8. Implement UCS, A*, RRT, RRT* path planning with circular obstacles --- May 31st
-9. 7. Design and document tuning of multiloop Lead/Lag controller --- May 31st
+9. Design and document tuning of multiloop Lead/Lag controller --- May 31st
 
 Tasks Daniil and Riccardo:
 1. Modify drone code with trajectory planner --- May 26th
