@@ -3,7 +3,7 @@
 Tasks Anthony:
 1. Write and test code for b-spline trajectories [75%] --- May 26th
   - only does cubic B-splines for now
-2. Derive dynamics of 2d drone, linearizations, state space, and transfer function [90%] --- May 27th
+2. Derive dynamics of 2d drone, linearizations, state space, and transfer function [100%] --- May 27th
 3. Upgrade simulator with sensor model and runge kutta integrator [50%] --- May 28th
 4. Write and test kalman filter with imu/proximity sensor fusion [40%] --- May 28th
 6. Design and document tuning of multiloop PID/KF controller [20%] --- May 28th
