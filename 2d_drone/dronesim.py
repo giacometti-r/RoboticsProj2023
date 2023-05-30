@@ -77,7 +77,7 @@ class ControlledDrone():
     Represents a drone controlled by a controller in order to reach a given target x,y position
     """
 
-    def __init__(self, drone, controller, target_x=0, target_y=0):
+    def __init__(self, drone, controller):
         """
         params:
             - drone: a Drone2D instance
@@ -86,10 +86,8 @@ class ControlledDrone():
 
         self.drone=drone
         self.controller=controller
-        self.target_x = target_x
-        self.target_y = target_y
         
-    def step(self, dt):
+    def step(self, dt, target_x, target_y):
         """
         This function first steps the controller, passing as parameters:
             - the drone x, y, theta
@@ -104,6 +102,6 @@ class ControlledDrone():
         x, y = self.drone.getxy()
         theta = self.drone.gettheta()
         lt, rt = self.controller.step(x, y, theta, 
-             self.target_x, self.target_y, 
+             target_x, target_y, 
              dt)
         self.drone.step(lt, rt, dt)

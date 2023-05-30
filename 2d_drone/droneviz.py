@@ -27,10 +27,13 @@ class DroneViz(arcade.Window):
         #                 font_size = 5, align="center")
         
     
-    def __init__(self):
+    def __init__(self, setpoints, waypoints):
         super().__init__(1024, 768, "Drone simulator", resizable=True)
         self.controlled_drones = []
-        self.target_x, self.target_y = 0, 0
+        self.waypoints = waypoints
+        self.setpoints = setpoints
+        self.initial_x = self.setpoints[0][0]
+        self.initial_y = self.setpoints[0][1]
         self.t_sim = 0
         self.t_real = 0
         self.worldwidth = 40
@@ -45,27 +48,34 @@ class DroneViz(arcade.Window):
         
         # This command has to happen before we start drawing
         arcade.start_render()
-        arcade.draw_rectangle_outline(self.target_x, self.target_y, 2, 2, border_width=0.1, color=arcade.color.RED)
+        arcade.draw_points(self.setpoints, arcade.color.RED, 1)
+        # arcade.draw_rectangle_outline(self.target_x, self.target_y, 2, 2, border_width=0.1, color=arcade.color.RED)
         
         start_t = datetime.now()
         shape_lists = []
         for controlled_drone in self.controlled_drones:
             self.draw_controlled_drone(controlled_drone).draw()
         #print(f"Step time: {datetime.now()-start_t}")
+
+    def euclidean_dist(self, x, y, target_x, target_y):
+        return np.sqrt((x-target_x)**2 + (y-target_y)**2)
         
     def on_update(self, delta_time):
         """ Movement and game logic """
 
-        for controlled_drone in self.controlled_drones:
-            controlled_drone.target_x = self.target_x
-            controlled_drone.target_y = self.target_y
+        # for controlled_drone in self.controlled_drones:
+        #     controlled_drone.target_x = self.target_x
+        #     controlled_drone.target_y = self.target_y
 
         dt = 0.02
         self.t_real += delta_time
         while self.t_sim < self.t_real: # advance simulation time in steps of dt until it matches real time
             for controlled_drone in self.controlled_drones:
                 try:
-                    controlled_drone.step(dt)
+                    x, y = controlled_drone.getxy()
+                    dist = self.euclidean_dist(x,y,target_x,target_y)
+                    target_x, target_y = self.waypoints.step()
+                    controlled_drone.step(dt, target_x, target_y)
                 except Exception as e:
                     print(f"error in controller step {e}")
             self.t_sim = self.t_sim + dt
@@ -82,10 +92,10 @@ class DroneViz(arcade.Window):
         """
         Called whenever the mouse button is clicked.
         """
-        x, y = self.window2viewport(x, y)
-        self.target_x, self.target_y = x, y
-        for cd in self.controlled_drones:
-            cd.target_x, cd.target_y = x, y
+        # x, y = self.window2viewport(x, y)
+        # self.target_x, self.target_y = x, y
+        # for cd in self.controlled_drones:
+        #     cd.target_x, cd.target_y = x, y
     
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.Q:
@@ -111,10 +121,10 @@ class DroneViz(arcade.Window):
 
     def spawn_drone(self):
         try:
-            import controller as cont
+            import good_controller as cont
             importlib.reload(cont)
-            initial_pose = dronesim.mktr(0,0) @ dronesim.mkrot(np.deg2rad(0))
-            d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=10)
+            initial_pose = dronesim.mktr(self.initial_x,self.initial_y) @ dronesim.mkrot(np.deg2rad(0))
+            d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=20)
             c = cont.Controller(maxthrust=d.maxthrust)
             cd = dronesim.ControlledDrone(drone=d, controller=c)
             self.controlled_drones.append(cd)
