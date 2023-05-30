@@ -3,11 +3,14 @@
 Tasks Anthony:
 1. Write and test code for b-spline trajectories [75%] --- May 26th
   - only does cubic B-splines for now
-2. Write and test kalman filter with simulated imu/proximity [10%] --- May 26th
-3. Implement UCS, A*, RRT, RRT* path planning with circular obstacles --- May 31st
-4. Derive dynamics of 2d drone and compute transfer function --- May 28th
-5. Design and document tuning of multiloop PID controller --- May 28th
-6. Design and document tuning of multiloop Lead/Lag controller --- May 28th
+2. Derive dynamics of 2d drone, linearizations, state space, and transfer function [100%] --- May 27th
+3. Upgrade simulator with sensor model and runge kutta integrator [50%] --- May 28th
+4. Write and test kalman filter with imu/proximity sensor fusion [40%] --- May 28th
+6. Design and document tuning of multiloop PID/KF controller [20%] --- May 28th
+8. Implement UCS, A*, RRT, RRT* path planning with circular obstacles --- May 31st
+9. Design and document tuning of LQR controller --- May 31st
+10. Design and document tuning of multiloop Lead/Lag controller --- May 31st
+11. Design and document tuning of MIMO pole placement controller --- May 31st
 
 Tasks Daniil and Riccardo:
 1. Modify drone code with trajectory planner --- May 26th
