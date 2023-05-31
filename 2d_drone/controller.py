@@ -5,9 +5,11 @@ from pid import PID
 class Controller():
     def __init__(self, maxthrust):
         self.maxthrust = maxthrust
-        self.y_pid = PID(1000, 0, 0) 
-        self.x_pid = PID(1000, 0, 0) 
-        self.theta_pid = PID(1000, 0, 0) 
+        self.y_pid = PID(1e-10, 0, 0) 
+        self.x_pid = PID(1e-10, 0, 0) 
+        self.theta_pid = PID(1e-10, 0, 0) 
+        self.tt = 0
+        self.tdiff = 0
 
     def step(self, 
              x, y, theta, 
@@ -24,7 +26,13 @@ class Controller():
         e_theta = target_theta - theta
         tdiff = self.theta_pid.step(e_theta, dt)
 
-        lt, rt = tt/2-tdiff/2, tt/2+tdiff/2
+        self.tt = tt
+        self.tdiff = tdiff
+
+        lt, rt = tt/2 - tdiff/2, tt/2 + tdiff/2
+
+
+        print(tt/2)
 
         # Return the desired left and right thrusts.
         # Consider that values will be clamped between 0 and maxthrust
