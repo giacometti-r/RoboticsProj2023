@@ -4,6 +4,7 @@ from datetime import datetime
 import importlib
 import dronesim
 from bspline_trajectory import Waypoints, BSplineTrajectory
+import matplotlib.pyplot as plt
 
 class DroneViz(arcade.Window):
     """ Main application class. """
@@ -145,9 +146,45 @@ class DroneViz(arcade.Window):
         except:
             print("error")
 
+    def simulate(self, cd): # simulate a ControlledDrone instance...
+        dt = 0.03 # timestep
+        ts = np.arange(0,5,dt)
+        xs,ys,thetas,lts,rts = [],[],[],[],[] # save here the x,y,theta coordinates of the drone
+        for t in ts:
+            cd.step(dt)
+            x,y = cd.drone.getxy()
+            xs.append(x)
+            ys.append(y)
+            lts.append(cd.drone.lt)
+            rts.append(cd.drone.rt)
+            thetas.append(cd.drone.gettheta())
+        fig,axs = plt.subplots(nrows=4, sharex=True, figsize=(8,12))
+        axs[0].plot(ts,xs)
+        axs[0].set(ylabel="x position [m]")
+        axs[1].plot(ts,ys)
+        axs[1].set(ylabel="height [m]")
+        axs[2].plot(ts,np.rad2deg(thetas))
+        axs[2].set(ylabel="theta [deg]")
+        axs[3].plot(ts,lts)
+        axs[3].plot(ts,rts)
+        axs[3].set(ylabel="thrust [N]", xlabel = "time [s]")
+
 if __name__ == "__main__":
-    setpoints = np.array([[0,0],[0,1],[1,1],[1,0],[0,0]])*50
-    trajectory = BSplineTrajectory(setpoints)
-    waypoints = Waypoints(trajectory, 20)
-    g = DroneViz(setpoints=setpoints, waypoints=waypoints)
+    simulation = True
+
+    if simulation:
+        import good_controller as cont
+        importlib.reload(cont) # make sure we have the latest version if it was edited
+        initial_pose = dronesim.mktr(0,0) @ dronesim.mkrot(np.deg2rad(30))
+        d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=10)
+        c = cont.Controller(maxthrust=d.maxthrust)
+        cd = dronesim.ControlledDrone(drone=d, controller=c)
+        DroneViz.simulate(cd)
+    
+    else:
+        setpoints = np.array([[0,0],[0,1],[1,1],[1,0],[0,0]])*50
+        trajectory = BSplineTrajectory(setpoints)
+        waypoints = Waypoints(trajectory, 10)
+        g = DroneViz(setpoints=setpoints, waypoints=waypoints)
+
     arcade.run()

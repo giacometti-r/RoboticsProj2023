@@ -5,9 +5,9 @@ from pid import PID
 class Controller():
     def __init__(self, maxthrust):
         self.maxthrust = maxthrust
-        self.y_pid = PID(20, 0, 0) 
-        self.x_pid = PID(20, 0, 0) 
-        self.theta_pid = PID(20, 0, 0) 
+        self.y_pid = PID(1000, 0, 0) 
+        self.x_pid = PID(1000, 0, 0) 
+        self.theta_pid = PID(1000, 0, 0) 
 
     def step(self, 
              x, y, theta, 
@@ -28,7 +28,7 @@ class Controller():
 
         # Return the desired left and right thrusts.
         # Consider that values will be clamped between 0 and maxthrust
-        lt = np.clip(lt, 0, self.maxthrust)
-        rt = np.clip(rt, 0, self.maxthrust)
+        # lt = np.clip(lt, 0, self.maxthrust)
+        # rt = np.clip(rt, 0, self.maxthrust)
         
         return lt, rt
