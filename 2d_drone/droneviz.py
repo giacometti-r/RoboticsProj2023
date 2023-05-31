@@ -3,6 +3,7 @@ import arcade
 from datetime import datetime
 import importlib
 import dronesim
+from bspline_trajectory import Waypoints, BSplineTrajectory
 
 class DroneViz(arcade.Window):
     """ Main application class. """
@@ -36,6 +37,7 @@ class DroneViz(arcade.Window):
         self.initial_y = self.setpoints[0][1]
         self.t_sim = 0
         self.t_real = 0
+        self.count = 0
         self.worldwidth = 40
 
     
@@ -48,7 +50,9 @@ class DroneViz(arcade.Window):
         
         # This command has to happen before we start drawing
         arcade.start_render()
-        arcade.draw_points(self.setpoints, arcade.color.RED, 1)
+        arcade.draw_points(self.setpoints, arcade.color.RED, 2)
+        arcade.draw_points(self.waypoints.samples, arcade.color.GREEN, 1)
+
         # arcade.draw_rectangle_outline(self.target_x, self.target_y, 2, 2, border_width=0.1, color=arcade.color.RED)
         
         start_t = datetime.now()
@@ -71,13 +75,23 @@ class DroneViz(arcade.Window):
         self.t_real += delta_time
         while self.t_sim < self.t_real: # advance simulation time in steps of dt until it matches real time
             for controlled_drone in self.controlled_drones:
+                if self.count == 0:
+                    print('INITIAL DEFINE')
+                    self.target_x, self.target_y = self.waypoints.step()
                 try:
-                    x, y = controlled_drone.getxy()
-                    dist = self.euclidean_dist(x,y,target_x,target_y)
-                    target_x, target_y = self.waypoints.step()
-                    controlled_drone.step(dt, target_x, target_y)
+                    x, y = controlled_drone.drone.getxy()
+                    dist = self.euclidean_dist(x,y,self.target_x, self.target_y)
+                    print(dist)
+                    controlled_drone.step(dt, self.target_x, self.target_y)
+                    if dist<3:
+                        print('CLOSE ENOUGH...')
+                        self.target_x, self.target_y = self.waypoints.step()
+                        print('CHANGING WAYPOINTS')
+                        print(self.target_x, self.target_y)
+                    self.count+=1
+
                 except Exception as e:
-                    print(f"error in controller step {e}")
+                    print(f"error in controller step: {e}")
             self.t_sim = self.t_sim + dt
         
     def window2viewport(self, x, y):
@@ -124,7 +138,7 @@ class DroneViz(arcade.Window):
             import good_controller as cont
             importlib.reload(cont)
             initial_pose = dronesim.mktr(self.initial_x,self.initial_y) @ dronesim.mkrot(np.deg2rad(0))
-            d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=20)
+            d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=15)
             c = cont.Controller(maxthrust=d.maxthrust)
             cd = dronesim.ControlledDrone(drone=d, controller=c)
             self.controlled_drones.append(cd)
@@ -132,5 +146,8 @@ class DroneViz(arcade.Window):
             print("error")
 
 if __name__ == "__main__":
-    g = DroneViz()
+    setpoints = np.array([[0,0],[0,1],[1,1],[1,0],[0,0]])*50
+    trajectory = BSplineTrajectory(setpoints)
+    waypoints = Waypoints(trajectory, 20)
+    g = DroneViz(setpoints=setpoints, waypoints=waypoints)
     arcade.run()

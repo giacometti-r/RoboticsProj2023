@@ -104,4 +104,7 @@ class ControlledDrone():
         lt, rt = self.controller.step(x, y, theta, 
              target_x, target_y, 
              dt)
+        
+        self.target_x = target_x
+        self.target_y = target_y
         self.drone.step(lt, rt, dt)

@@ -5,9 +5,9 @@ from pid import PID
 class Controller():
     def __init__(self, maxthrust):
         self.maxthrust = maxthrust
-        self.y_pid = PID(10, 1, 10) 
-        self.x_pid = PID(.1, 0, .1) 
-        self.theta_pid = PID(10, 0, 4  ) 
+        self.y_pid = PID(20, 0, 0) 
+        self.x_pid = PID(20, 0, 0) 
+        self.theta_pid = PID(20, 0, 0) 
 
     def step(self, 
              x, y, theta, 
