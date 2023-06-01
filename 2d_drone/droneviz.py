@@ -179,9 +179,7 @@ if __name__ == "__main__":
         d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=10)
         c = cont.Controller(maxthrust=d.maxthrust)
         cd = dronesim.ControlledDrone(drone=d, controller=c)
-        setpoints = np.array([[0,10]])
-        waypoints = np.array([[0,10]])
-        DroneViz(setpoints=setpoints, waypoints=waypoints).simulate(cd)
+        DroneViz.simulate(cd)
     
     else:
         setpoints = np.array([[0,0],[0,1],[1,1],[1,0],[0,0]])*50
