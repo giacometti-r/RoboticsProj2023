@@ -5,7 +5,7 @@ from linear_controller import LinearController
 #Lead-Lag Compensator with params [K0, K1, K2, K3, gamma]
 class LeadLagCompensator(LinearController):
     def __init__(self, k, dt, mingain=-float("inf"), maxgain=float("inf"), discrete=True):
-        super.__init__(self, dt, mingain, maxgain)
+        super().__init__(dt, mingain, maxgain)
 
         #define parameters
         self.k = k

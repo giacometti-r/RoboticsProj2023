@@ -130,14 +130,14 @@ class DroneViz(arcade.Window):
         }
 
         K = np.zeros((3,3))
-
+        dt = 0.02
         # try:
         for i in range(3):
             import cascaded_planar_controller as cont
             importlib.reload(cont)
             initial_pose = dronesim.mktr(waypoints_list[i].samples[0][0],waypoints_list[i].samples[0][1]) @ dronesim.mkrot(np.deg2rad(0))
             d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=20)
-            c = cont.CascadedPlanarController(K=K, mingain=0, maxgain=20, ctype=ctype_dict[i])
+            c = cont.CascadedPlanarController(K=K, mingain=0, maxgain=20, ctype=ctype_dict[i], dt=dt)
             cd = dronesim.ControlledDrone(drone=d, controller=c, waypoints=waypoints_list[i])
             self.controlled_drones.append(cd)
         # except Exception as e:

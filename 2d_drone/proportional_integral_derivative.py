@@ -5,7 +5,7 @@ from linear_controller import LinearController
 #Proportional Integral Derivative Controller
 class ProportionalIntegralDerivative(LinearController):
     def __init__(self, kp, ki, kd, dt, mingain=-float("inf"), maxgain=float("inf")):
-        super.__init__(self, dt, mingain, maxgain)
+        super().__init__(dt, mingain, maxgain)
         self.kp = kp
         self.ki = ki
         self.kd = kd

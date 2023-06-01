@@ -6,7 +6,7 @@ from linear_controller import LinearController
 #   -computes PID in discrete space using bilinear transform
 class DiscreteProportionalIntegralDerivative(LinearController):
     def __init__(self, kp, ki, kd, dt, mingain=-float("inf"), maxgain=float("inf")):
-        super.__init__(self, dt, mingain, maxgain)
+        super().__init__(dt, mingain, maxgain)
 
         #define parameter from kp, kd, ki
         self.k = kp + (2 * ki) / self.dt + (0.5 * ki * self.dt)

@@ -9,8 +9,10 @@ from LLC import LeadLagCompensator
 #Cascaded PID for Planar Dynamical Systems with q = [x,y,theta]
 class CascadedPlanarController(LinearController):
     def __init__(self, K, dt, mingain=-float("inf"), maxgain=float("inf"), ctype=SISO_CONTROLLER_TYPE.PID):
-        super.__init__(self, dt, mingain, maxgain)
-        assert K.shape[0] > 4, "Gain matrix too large"
+        super().__init__(dt, mingain, maxgain)
+        assert K.shape[0] < 4, "Gain matrix too large"
+
+        self.controllers = [0,0,0]
 
         #check for type of cascade (thrust coupling???): [x,y,thetaX, thetaY]
         for i in range(K.shape[0]):

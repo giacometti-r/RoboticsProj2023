@@ -103,40 +103,7 @@ class ControlledDrone():
         """
         x, y = self.drone.getxy()
         theta = self.drone.gettheta()
-        lt, rt = self.controller.step(x, y, theta, 
-             target_x, target_y, 
-             dt)
         
-        self.target_x = target_x
-        self.target_y = target_y
-        self.drone.step(lt, rt, dt)
-
-class CDPID():
-
-    def __init__(self, drone, controller):
-        """
-        params:
-            - drone: a Drone2D instance
-            - controller: a controller instance
-        """
-
-        self.drone=drone
-        self.controller=controller
-
-    def step(self, dt, target_x, target_y):
-        """
-        This function first steps the controller, passing as parameters:
-            - the drone x, y, theta
-            - the current target_x and target_y
-            - dt
-        The controller returns the desired left and right thrust.
-        Then, the controller steps the drone, passing the left and right thrust.
-
-        params:
-            - dt: timestep duration [seconds]
-        """
-        x, y = self.drone.getxy()
-        theta = self.drone.gettheta()
         lt, rt = self.controller.step(x, y, theta, 
              target_x, target_y, 
              dt)
