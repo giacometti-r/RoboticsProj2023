@@ -5,6 +5,7 @@ import importlib
 import dronesim
 from bspline_trajectory import Waypoints, BSplineTrajectory
 import matplotlib.pyplot as plt
+import siso_controller_type as SISO_CONTROLLER_TYPE
 
 class DroneViz(arcade.Window):
     """ Main application class. """
@@ -32,14 +33,12 @@ class DroneViz(arcade.Window):
     def __init__(self, setpoints, waypoints):
         super().__init__(1024, 768, "Drone simulator", resizable=True)
         self.controlled_drones = []
-        self.waypoints = waypoints
-        self.setpoints = setpoints
-        self.initial_x = self.setpoints[0][0]
-        self.initial_y = self.setpoints[0][1]
+        self.waypoints_list = waypoints
+        self.setpoints_list = setpoints
         self.t_sim = 0
         self.t_real = 0
         self.count = 0
-        self.worldwidth = 40
+        self.worldwidth = 80
 
     
     def on_draw(self):
@@ -51,16 +50,14 @@ class DroneViz(arcade.Window):
         
         # This command has to happen before we start drawing
         arcade.start_render()
-        arcade.draw_points(self.setpoints, arcade.color.RED, 2)
-        arcade.draw_points(self.waypoints.samples, arcade.color.GREEN, 1)
-
-        # arcade.draw_rectangle_outline(self.target_x, self.target_y, 2, 2, border_width=0.1, color=arcade.color.RED)
-        
+        for i,setpoint in enumerate(setpoints_list):
+            arcade.draw_points(setpoint, arcade.color.RED, .4)
+            arcade.draw_points(waypoints_list[i].samples, arcade.color.GREEN, .2)
+                
         start_t = datetime.now()
         shape_lists = []
-        for controlled_drone in self.controlled_drones:
+        for controlled_drone in self.controlled_drones: 
             self.draw_controlled_drone(controlled_drone).draw()
-        #print(f"Step time: {datetime.now()-start_t}")
 
     def euclidean_dist(self, x, y, target_x, target_y):
         return np.sqrt((x-target_x)**2 + (y-target_y)**2)
@@ -84,7 +81,7 @@ class DroneViz(arcade.Window):
                     dist = self.euclidean_dist(x,y,self.target_x, self.target_y)
                     print(dist)
                     controlled_drone.step(dt, self.target_x, self.target_y)
-                    if dist<3:
+                    if dist<1:
                         print('CLOSE ENOUGH...')
                         self.target_x, self.target_y = self.waypoints.step()
                         print('CHANGING WAYPOINTS')
@@ -135,58 +132,32 @@ class DroneViz(arcade.Window):
             print(cd.drone.pose)
 
     def spawn_drone(self):
+        ctype_dict = {
+            0: SISO_CONTROLLER_TYPE.PID,
+            1: SISO_CONTROLLER_TYPE.DPID,
+            2: SISO_CONTROLLER_TYPE.LLC
+        }
         try:
-            import good_controller as cont
-            importlib.reload(cont)
-            initial_pose = dronesim.mktr(self.initial_x,self.initial_y) @ dronesim.mkrot(np.deg2rad(0))
-            d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=15)
-            c = cont.Controller(maxthrust=d.maxthrust)
-            cd = dronesim.ControlledDrone(drone=d, controller=c)
-            self.controlled_drones.append(cd)
+            for i in range(3):
+                import cascaded_planar_controller as cont
+                importlib.reload(cont)
+                initial_pose = dronesim.mktr(self.initial_x,self.initial_y) @ dronesim.mkrot(np.deg2rad(0))
+                d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=20)
+                c = cont.CascadedPlanarController(mingain=0, maxgain=20, ctype=ctype_dict[i])
+                cd = dronesim.ControlledDrone(drone=d, controller=c, waypoints=waypoints)
+                self.controlled_drones.append(cd)
         except:
             print("error")
 
-    def simulate(self, cd): # simulate a ControlledDrone instance...
-        dt = 0.03 # timestep
-        ts = np.arange(0,5,dt)
-        xs,ys,thetas,lts,rts = [],[],[],[],[] # save here the x,y,theta coordinates of the drone
-        for t in ts:
-            cd.step(dt)
-            x,y = cd.drone.getxy()
-            xs.append(x)
-            ys.append(y)
-            lts.append(cd.drone.lt)
-            rts.append(cd.drone.rt)
-            thetas.append(cd.drone.gettheta())
-        fig,axs = plt.subplots(nrows=4, sharex=True, figsize=(8,12))
-        axs[0].plot(ts,xs)
-        axs[0].set(ylabel="x position [m]")
-        axs[1].plot(ts,ys)
-        axs[1].set(ylabel="height [m]")
-        axs[2].plot(ts,np.rad2deg(thetas))
-        axs[2].set(ylabel="theta [deg]")
-        axs[3].plot(ts,lts)
-        axs[3].plot(ts,rts)
-        axs[3].set(ylabel="thrust [N]", xlabel = "time [s]")
-
 if __name__ == "__main__":
-    simulation = True
-
-    if simulation:
-        import good_controller as cont
-        importlib.reload(cont) # make sure we have the latest version if it was edited
-        initial_pose = dronesim.mktr(0,0) @ dronesim.mkrot(np.deg2rad(30))
-        d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=10)
-        c = cont.Controller(maxthrust=d.maxthrust)
-        cd = dronesim.ControlledDrone(drone=d, controller=c)
-        setpoints = np.array([[0,10]])
-        waypoints = np.array([[0,10]])
-        DroneViz(setpoints=setpoints, waypoints=waypoints).simulate(cd)
-    
-    else:
-        setpoints = np.array([[0,0],[0,1],[1,1],[1,0],[0,0]])*50
+    setpoints_list = []
+    waypoints_list = []
+    for i in range(3):
+        setpoints = np.array([[0,0],[0,1],[1,1],[1,0],[0,0]])*10 + np.array([((i+1)*20),0])
         trajectory = BSplineTrajectory(setpoints)
         waypoints = Waypoints(trajectory, 10)
-        g = DroneViz(setpoints=setpoints, waypoints=waypoints)
+        setpoints_list.append(setpoints)
+        waypoints_list.append(waypoints)
+    g = DroneViz(setpoints=setpoints_list, waypoints=waypoints_list)
 
     arcade.run()

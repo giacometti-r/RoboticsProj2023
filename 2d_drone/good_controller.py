@@ -8,7 +8,7 @@ class Controller():
         self.maxthrust = maxthrust # just to know what the max thrust is. Could be useful
 
         # EDIT HERE: Create whatever objects you need
-        self.y_pid = PID(10, 0.1, 10)  #PID(10, 0.1, 10)
+        self.y_pid = PID(0.6, 0.11577424023154849, 0.7773749999999998)#PID(10, 0.1, 10)
         self.x_pid = PID(0.2, 0, 0.3) # this defines our desired theta angle
         self.theta_pid = PID(10, 0 , 10)
 
