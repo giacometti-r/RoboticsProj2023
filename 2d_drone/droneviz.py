@@ -5,7 +5,7 @@ import importlib
 import dronesim
 from bspline_trajectory import Waypoints, BSplineTrajectory
 import matplotlib.pyplot as plt
-import siso_controller_type as SISO_CONTROLLER_TYPE
+from siso_controller_type import *
 
 class DroneViz(arcade.Window):
     """ Main application class. """
@@ -98,16 +98,7 @@ class DroneViz(arcade.Window):
         xv = x_min + (x/width)*(x_max-x_min)
         yv = y_min + (y/height)*(y_max-y_min)
         print(xv,yv)
-        return xv, yv    
-    
-    def on_mouse_press(self, x, y, button, modifiers):
-        """
-        Called whenever the mouse button is clicked.
-        """
-        # x, y = self.window2viewport(x, y)
-        # self.target_x, self.target_y = x, y
-        # for cd in self.controlled_drones:
-        #     cd.target_x, cd.target_y = x, y
+        return xv, yv   
     
     def on_key_press(self, symbol, modifiers):
         if symbol == arcade.key.Q:
@@ -137,17 +128,21 @@ class DroneViz(arcade.Window):
             1: SISO_CONTROLLER_TYPE.DPID,
             2: SISO_CONTROLLER_TYPE.LLC
         }
-        try:
-            for i in range(3):
-                import cascaded_planar_controller as cont
-                importlib.reload(cont)
-                initial_pose = dronesim.mktr(self.initial_x,self.initial_y) @ dronesim.mkrot(np.deg2rad(0))
-                d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=20)
-                c = cont.CascadedPlanarController(mingain=0, maxgain=20, ctype=ctype_dict[i])
-                cd = dronesim.ControlledDrone(drone=d, controller=c, waypoints=waypoints)
-                self.controlled_drones.append(cd)
-        except:
-            print("error")
+
+        K = np.zeros((3,3))
+
+        # try:
+        for i in range(3):
+            import cascaded_planar_controller as cont
+            importlib.reload(cont)
+            initial_pose = dronesim.mktr(waypoints_list[i].samples[0][0],waypoints_list[i].samples[0][1]) @ dronesim.mkrot(np.deg2rad(0))
+            d = dronesim.Drone2D(initial_pose=initial_pose, mass=1, L=1, maxthrust=20)
+            c = cont.CascadedPlanarController(K=K, mingain=0, maxgain=20, ctype=ctype_dict[i])
+            cd = dronesim.ControlledDrone(drone=d, controller=c, waypoints=waypoints_list[i])
+            self.controlled_drones.append(cd)
+        # except Exception as e:
+        #     print("error")
+        #     print(e)
 
 if __name__ == "__main__":
     setpoints_list = []

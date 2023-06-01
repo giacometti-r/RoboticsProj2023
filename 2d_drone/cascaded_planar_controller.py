@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from linear_controller import LinearController
-import siso_controller_type as SISO_CONTROLLER_TYPE
+from siso_controller_type import SISO_CONTROLLER_TYPE
 from proportional_integral_derivative import ProportionalIntegralDerivative
 from DPID import DiscreteProportionalIntegralDerivative
 from LLC import LeadLagCompensator
@@ -16,7 +16,7 @@ class CascadedPlanarController(LinearController):
         for i in range(K.shape[0]):
             #Check for controller type
             if ctype == SISO_CONTROLLER_TYPE.PID:
-                self.controllers[i] = ProportionalIntegralDerivative(K[i], self.dt, self.mingain, self.maxgain)
+                self.controllers[i] = ProportionalIntegralDerivative(K[i][0], K[i][1], K[i][2], self.dt, self.mingain, self.maxgain)
             elif ctype == SISO_CONTROLLER_TYPE.DPID:
                 self.controllers[i] = DiscreteProportionalIntegralDerivative(K[i], self.dt, self.mingain, self.maxgain)
             elif ctype == SISO_CONTROLLER_TYPE.LLC:
